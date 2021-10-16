@@ -1,3 +1,6 @@
 [submodule "components/threadx"]
 	path = components/threadx
 	url = https://github.com/azure-rtos/threadx.git
+[submodule "components/filex"]
+	path = components/filex
+	url = https://github.com/azure-rtos/filex.git

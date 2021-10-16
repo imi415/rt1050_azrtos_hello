@@ -38,7 +38,7 @@ MEMORY
   m_flash_config        (RX)  : ORIGIN = 0x60000000, LENGTH = 0x00001000
   m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
-  m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x03FFDC00
+  m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x01FFDC00
   m_qacode              (RX)  : ORIGIN = 0x00000000, LENGTH = 0x00020000
   m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
   m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
@@ -58,7 +58,7 @@ SECTIONS
     . = ALIGN(4);
   } > m_flash_config
 
-  ivt_begin= ORIGIN(m_flash_config) + LENGTH(m_flash_config);
+  ivt_begin = ORIGIN(m_flash_config) + LENGTH(m_flash_config);
 
   .ivt : AT(ivt_begin)
   {

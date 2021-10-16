@@ -16,9 +16,11 @@ VOID _tx_initialize_low_level(VOID) {
 
     _tx_initialize_unused_memory = (VOID *)UNUSED_MEM_PTR;
 
+    // Initialize cycle counter and SysTick
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
     SysTick_Config(SystemCoreClock / TX_TIMER_TICKS_PER_SECOND);
 
+    // Set IRQ priority
     NVIC_SetPriority(MemoryManagement_IRQn, 0);
     NVIC_SetPriority(BusFault_IRQn,         0);
     NVIC_SetPriority(UsageFault_IRQn,       0);

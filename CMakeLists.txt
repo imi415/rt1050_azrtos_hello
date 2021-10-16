@@ -14,9 +14,10 @@ set(TARGET_CXXFLAGS_EXTRA "")
 set(TARGET_LDFLAGS_EXTRA  "-Wl,--print-memory-usage -Xlinker --defsym=__heap_size__=0x1F000") # ThreadX uses the default heap.
 
 # Different linker scripts
-set(TARGET_LDSCRIPT_RAM     "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_ram.ld")
-set(TARGET_LDSCRIPT_FLEXSPI "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_flexspi_nor.ld")
-set(TARGET_LDSCRIPT_SDRAM   "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_sdram.ld")
+set(TARGET_LDSCRIPT_RAM           "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_ram.ld")
+set(TARGET_LDSCRIPT_FLEXSPI       "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_flexspi_nor.ld")
+set(TARGET_LDSCRIPT_SDRAM         "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_sdram.ld")
+set(TARGET_LDSCRIPT_FLEXSPI_SDRAM "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_flexspi_nor_sdram.ld")
 
 # Copy them from Makefile
 set(TARGET_C_SOURCES
@@ -95,6 +96,7 @@ set(TARGET_C_SOURCES
     "board/clock_config.c"
     "board/peripherals.c"
     "board/pin_mux.c"
+    "board/xip/fire_ebf1052_flexspi_nor_config.c"
     "source/main.c"
     "source/tx_init_lowlevel.c"
 )
@@ -123,6 +125,7 @@ set(TARGET_INCLUDES
 
 set(TARGET_LIBS
     "threadx"
+    "filex"
 )
 
 # Final compiler flags
@@ -136,6 +139,7 @@ set(THREADX_ARCH "cortex_m7" CACHE STRING "ThreadX Arch")
 set(THREADX_TOOLCHAIN "gnu" CACHE STRING "ThreadX Toolchain")
 set(TX_USER_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/tx_user.h")
 add_subdirectory(components/threadx)
+add_subdirectory(components/filex)
 
 # Main targets are added here
 
@@ -214,4 +218,33 @@ add_custom_command(OUTPUT "${CMAKE_PROJECT_NAME}_SDRAM.hex"
 
 add_custom_target("${CMAKE_PROJECT_NAME}_SDRAM_HEX"
     DEPENDS "${CMAKE_PROJECT_NAME}_SDRAM.hex"
+)
+
+# **** FlexSPI boot, data in SDRAM ****
+
+# Create ELF
+add_executable("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf" ${TARGET_C_SOURCES} ${TARGET_ASM_SOURCES})
+
+# Linker script and Map files
+target_link_options("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf"
+    PRIVATE "-T${TARGET_LDSCRIPT_FLEXSPI_SDRAM}"
+    PRIVATE "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.map,--cref"
+)
+target_compile_definitions("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf"
+    PRIVATE ${TARGET_DEFINES}
+    PRIVATE "XIP_EXTERNAL_FLASH=1"
+    PRIVATE "XIP_BOOT_HEADER_ENABLE=1"
+    PRIVATE "DATA_SECTION_IS_CACHABLE=1"
+    PRIVATE "SKIP_SYSCLK_INIT"
+)
+target_include_directories("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf" PRIVATE ${TARGET_INCLUDES})
+target_link_libraries("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf" PRIVATE ${TARGET_LIBS})
+
+add_custom_command(OUTPUT "${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.hex"
+    COMMAND ${CMAKE_OBJCOPY} "-O" "ihex" "${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf" "${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.hex"
+    DEPENDS "${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.elf"
+)
+
+add_custom_target("${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM_HEX"
+    DEPENDS "${CMAKE_PROJECT_NAME}_FLEXSPI_SDRAM.hex"
 )

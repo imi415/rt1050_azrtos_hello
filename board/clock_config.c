@@ -51,7 +51,7 @@ void BOARD_InitBootClocks(void)
 name: BOARD_BootClockRUN
 called_from_default_init: true
 outputs:
-- {id: AHB_CLK_ROOT.outFreq, value: 360 MHz}
+- {id: AHB_CLK_ROOT.outFreq, value: 24 MHz}
 - {id: CAN_CLK_ROOT.outFreq, value: 2 MHz}
 - {id: CLK_1M.outFreq, value: 1 MHz}
 - {id: CLK_24M.outFreq, value: 24 MHz}
@@ -60,16 +60,16 @@ outputs:
 - {id: ENET_25M_REF_CLK.outFreq, value: 1.2 MHz}
 - {id: FLEXIO1_CLK_ROOT.outFreq, value: 1.5 MHz}
 - {id: FLEXIO2_CLK_ROOT.outFreq, value: 1.5 MHz}
-- {id: FLEXSPI_CLK_ROOT.outFreq, value: 36 MHz}
-- {id: GPT1_ipg_clk_highfreq.outFreq, value: 11.25 MHz}
-- {id: GPT2_ipg_clk_highfreq.outFreq, value: 11.25 MHz}
-- {id: IPG_CLK_ROOT.outFreq, value: 90 MHz}
+- {id: FLEXSPI_CLK_ROOT.outFreq, value: 2.4 MHz}
+- {id: GPT1_ipg_clk_highfreq.outFreq, value: 2 MHz}
+- {id: GPT2_ipg_clk_highfreq.outFreq, value: 2 MHz}
+- {id: IPG_CLK_ROOT.outFreq, value: 6 MHz}
 - {id: LCDIF_CLK_ROOT.outFreq, value: 3 MHz}
 - {id: LPI2C_CLK_ROOT.outFreq, value: 3 MHz}
-- {id: LPSPI_CLK_ROOT.outFreq, value: 6 MHz}
-- {id: LVDS1_CLK.outFreq, value: 720 MHz}
+- {id: LPSPI_CLK_ROOT.outFreq, value: 4.8 MHz}
+- {id: LVDS1_CLK.outFreq, value: 24 MHz}
 - {id: MQS_MCLK.outFreq, value: 3 MHz}
-- {id: PERCLK_CLK_ROOT.outFreq, value: 11.25 MHz}
+- {id: PERCLK_CLK_ROOT.outFreq, value: 2 MHz}
 - {id: PLL7_MAIN_CLK.outFreq, value: 24 MHz}
 - {id: SAI1_CLK_ROOT.outFreq, value: 3 MHz}
 - {id: SAI1_MCLK1.outFreq, value: 3 MHz}
@@ -81,35 +81,31 @@ outputs:
 - {id: SAI3_CLK_ROOT.outFreq, value: 3 MHz}
 - {id: SAI3_MCLK1.outFreq, value: 3 MHz}
 - {id: SAI3_MCLK3.outFreq, value: 1.5 MHz}
-- {id: SEMC_CLK_ROOT.outFreq, value: 72 MHz}
+- {id: SEMC_CLK_ROOT.outFreq, value: 4.8 MHz}
 - {id: SPDIF0_CLK_ROOT.outFreq, value: 1.5 MHz}
 - {id: TRACE_CLK_ROOT.outFreq, value: 6 MHz}
-- {id: UART_CLK_ROOT.outFreq, value: 4 MHz}
-- {id: USDHC1_CLK_ROOT.outFreq, value: 12 MHz}
-- {id: USDHC2_CLK_ROOT.outFreq, value: 12 MHz}
+- {id: UART_CLK_ROOT.outFreq, value: 24 MHz}
+- {id: USDHC1_CLK_ROOT.outFreq, value: 24 MHz}
+- {id: USDHC2_CLK_ROOT.outFreq, value: 4.8 MHz}
 settings:
-- {id: CCM.PERCLK_PODF.scale, value: '8', locked: true}
+- {id: CCM.ARM_PODF.scale, value: '1'}
+- {id: CCM.LPSPI_PODF.scale, value: '5'}
+- {id: CCM.PERCLK_PODF.scale, value: '3', locked: true}
 - {id: CCM.SEMC_PODF.scale, value: '5'}
-- {id: CCM_ANALOG.PLL1_BYPASS.sel, value: CCM_ANALOG.PLL1}
+- {id: CCM.UART_CLK_SEL.sel, value: XTALOSC24M.OSC_CLK}
+- {id: CCM.USDHC1_PODF.scale, value: '1', locked: true}
+- {id: CCM.USDHC2_PODF.scale, value: '5'}
 - {id: CCM_ANALOG.PLL1_PREDIV.scale, value: '1', locked: true}
-- {id: CCM_ANALOG.PLL1_VDIV.scale, value: '30', locked: true}
+- {id: CCM_ANALOG.PLL1_VDIV.scale, value: '27', locked: true}
+- {id: CCM_ANALOG.PLL2.denom, value: '1'}
+- {id: CCM_ANALOG.PLL2.num, value: '0'}
+- {id: CCM_ANALOG_PLL_ARM_POWERDOWN_CFG, value: 'Yes'}
+- {id: CCM_ANALOG_PLL_SYS_POWERDOWN_CFG, value: 'Yes'}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
 
 /*******************************************************************************
  * Variables for BOARD_BootClockRUN configuration
  ******************************************************************************/
-const clock_arm_pll_config_t armPllConfig_BOARD_BootClockRUN =
-    {
-        .loopDivider = 60,                        /* PLL loop divider, Fout = Fin * 30 */
-        .src = 0,                                 /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-    };
-const clock_sys_pll_config_t sysPllConfig_BOARD_BootClockRUN =
-    {
-        .loopDivider = 1,                         /* PLL loop divider, Fout = Fin * ( 20 + loopDivider*2 + numerator / denominator ) */
-        .numerator = 1,                           /* 30 bit numerator of fractional loop divider */
-        .denominator = 60000,                     /* 30 bit denominator of fractional loop divider */
-        .src = 0,                                 /* Bypass clock source, 0 - OSC 24M, 1 - CLK1_P and CLK1_N */
-    };
 const clock_enet_pll_config_t enetPllConfig_BOARD_BootClockRUN =
     {
         .enableClkOutput = true,                  /* Enable the PLL providing the ENET 125MHz reference clock */
@@ -150,7 +146,7 @@ void BOARD_BootClockRUN(void)
     /* Set IPG_PODF. */
     CLOCK_SetDiv(kCLOCK_IpgDiv, 3);
     /* Set ARM_PODF. */
-    CLOCK_SetDiv(kCLOCK_ArmDiv, 1);
+    CLOCK_SetDiv(kCLOCK_ArmDiv, 0);
     /* Set PERIPH_CLK2_PODF. */
     CLOCK_SetDiv(kCLOCK_PeriphClk2Div, 0);
     /* Disable PERCLK clock gate. */
@@ -160,17 +156,17 @@ void BOARD_BootClockRUN(void)
     CLOCK_DisableClock(kCLOCK_Gpt2S);
     CLOCK_DisableClock(kCLOCK_Pit);
     /* Set PERCLK_PODF. */
-    CLOCK_SetDiv(kCLOCK_PerclkDiv, 7);
+    CLOCK_SetDiv(kCLOCK_PerclkDiv, 2);
     /* Disable USDHC1 clock gate. */
     CLOCK_DisableClock(kCLOCK_Usdhc1);
     /* Set USDHC1_PODF. */
-    CLOCK_SetDiv(kCLOCK_Usdhc1Div, 1);
+    CLOCK_SetDiv(kCLOCK_Usdhc1Div, 0);
     /* Set Usdhc1 clock source. */
     CLOCK_SetMux(kCLOCK_Usdhc1Mux, 0);
     /* Disable USDHC2 clock gate. */
     CLOCK_DisableClock(kCLOCK_Usdhc2);
     /* Set USDHC2_PODF. */
-    CLOCK_SetDiv(kCLOCK_Usdhc2Div, 1);
+    CLOCK_SetDiv(kCLOCK_Usdhc2Div, 4);
     /* Set Usdhc2 clock source. */
     CLOCK_SetMux(kCLOCK_Usdhc2Mux, 0);
     /* In SDK projects, SDRAM (configured by SEMC) will be initialized in either debug script or dcd.
@@ -209,7 +205,7 @@ void BOARD_BootClockRUN(void)
     CLOCK_DisableClock(kCLOCK_Lpspi3);
     CLOCK_DisableClock(kCLOCK_Lpspi4);
     /* Set LPSPI_PODF. */
-    CLOCK_SetDiv(kCLOCK_LpspiDiv, 3);
+    CLOCK_SetDiv(kCLOCK_LpspiDiv, 4);
     /* Set Lpspi clock source. */
     CLOCK_SetMux(kCLOCK_LpspiMux, 2);
     /* Disable TRACE clock gate. */
@@ -271,7 +267,7 @@ void BOARD_BootClockRUN(void)
     /* Set UART_CLK_PODF. */
     CLOCK_SetDiv(kCLOCK_UartDiv, 0);
     /* Set Uart clock source. */
-    CLOCK_SetMux(kCLOCK_UartMux, 0);
+    CLOCK_SetMux(kCLOCK_UartMux, 1);
     /* Disable LCDIF clock gate. */
     CLOCK_DisableClock(kCLOCK_LcdPixel);
     /* Set LCDIF_PRED. */
@@ -306,8 +302,12 @@ void BOARD_BootClockRUN(void)
     CLOCK_SetMux(kCLOCK_Flexio2Mux, 3);
     /* Set Pll3 sw clock source. */
     CLOCK_SetMux(kCLOCK_Pll3SwMux, 0);
-    /* Init ARM PLL. */
-    CLOCK_InitArmPll(&armPllConfig_BOARD_BootClockRUN);
+    /* DeInit ARM PLL. */
+    CLOCK_DeinitArmPll();
+    /* Bypass ARM PLL. */
+    CLOCK_SetPllBypass(CCM_ANALOG, kCLOCK_PllArm, 1);
+    /* Enable ARM PLL output. */
+    CCM_ANALOG->PLL_ARM |= CCM_ANALOG_PLL_ARM_ENABLE_MASK;
     /* In SDK projects, SDRAM (configured by SEMC) will be initialized in either debug script or dcd.
      * With this macro SKIP_SYSCLK_INIT, system pll (selected to be SEMC source clock in SDK projects) will be left unchanged.
      * Note: If another clock source is selected for SEMC, user may want to avoid changing that clock as well.*/
@@ -315,20 +315,12 @@ void BOARD_BootClockRUN(void)
 #if defined(XIP_BOOT_HEADER_DCD_ENABLE) && (XIP_BOOT_HEADER_DCD_ENABLE == 1)
     #warning "SKIP_SYSCLK_INIT should be defined to keep system pll (selected to be SEMC source clock in SDK projects) unchanged."
 #endif
-    /* Init System PLL. */
-    CLOCK_InitSysPll(&sysPllConfig_BOARD_BootClockRUN);
-    /* Init System pfd0. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd0, 27);
-    /* Init System pfd1. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd1, 16);
-    /* Init System pfd2. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd2, 24);
-    /* Init System pfd3. */
-    CLOCK_InitSysPfd(kCLOCK_Pfd3, 16);
-    /* Disable pfd offset. */
-    CCM_ANALOG->PLL_SYS &= ~CCM_ANALOG_PLL_SYS_PFD_OFFSET_EN_MASK;
+    /* DeInit System PLL. */
+    CLOCK_DeinitSysPll();
     /* Bypass System PLL. */
     CLOCK_SetPllBypass(CCM_ANALOG, kCLOCK_PllSys, 1);
+    /* Enable System PLL output. */
+    CCM_ANALOG->PLL_SYS |= CCM_ANALOG_PLL_SYS_ENABLE_MASK;
 #endif
     /* In SDK projects, external flash (configured by FLEXSPI) will be initialized by dcd.
      * With this macro XIP_EXTERNAL_FLASH, usb1 pll (selected to be FLEXSPI clock source in SDK projects) will be left unchanged.
