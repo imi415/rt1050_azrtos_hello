@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<configuration name="MIMXRT1052xxxxB" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_10 http://mcuxpresso.nxp.com/XSD/mex_configuration_10.xsd" uuid="e767cfd1-19f4-4276-8179-e7342e030a3a" version="10" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <common>
+      <processor>MIMXRT1052xxxxB</processor>
+      <package>MIMXRT1052CVL5B</package>
+      <mcu_data>ksdk2_0</mcu_data>
+      <cores selected="core0">
+         <core name="Cortex-M7F" id="core0" description="M7 core"/>
+      </cores>
+      <description></description>
+   </common>
+   <preferences>
+      <validate_boot_init_only>true</validate_boot_init_only>
+      <generate_extended_information>false</generate_extended_information>
+      <generate_code_modified_registers_only>false</generate_code_modified_registers_only>
+      <update_include_paths>true</update_include_paths>
+   </preferences>
+   <tools>
+      <pins name="Pins" version="10.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/pin_mux.c" update_enabled="true"/>
+            <file path="board/pin_mux.h" update_enabled="true"/>
+         </generated_project_files>
+         <pins_profile>
+            <processor_version>10.0.0</processor_version>
+            <power_domains/>
+            <pin_labels>
+               <pin_label pin_num="F14" pin_signal="GPIO_AD_B0_09" label="LED_BLUE" identifier="LED_BLUE"/>
+            </pin_labels>
+         </pins_profile>
+         <functions_list>
+            <function name="BOARD_InitPins">
+               <description>Configures pin routing and optionally pin electrical features.</description>
+               <options>
+                  <callFromInitBoot>true</callFromInitBoot>
+                  <coreID>core0</coreID>
+                  <enableClock>true</enableClock>
+               </options>
+               <dependencies>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Pins initialization requires the COMMON Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.iomuxc" description="Pins initialization requires the IOMUXC Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.igpio" description="Pins initialization requires the IGPIO Driver in the project." problem_level="2" source="Pins:BOARD_InitPins">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+               </dependencies>
+               <pins>
+                  <pin peripheral="GPIO1" signal="gpio_io, 09" pin_num="F14" pin_signal="GPIO_AD_B0_09">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
+                        <pin_feature name="gpio_init_state" value="true"/>
+                        <pin_feature name="speed" value="MHZ_50"/>
+                     </pin_features>
+                  </pin>
+               </pins>
+            </function>
+         </functions_list>
+      </pins>
+      <clocks name="Clocks" version="8.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/clock_config.c" update_enabled="true"/>
+            <file path="board/clock_config.h" update_enabled="true"/>
+         </generated_project_files>
+         <clocks_profile>
+            <processor_version>10.0.0</processor_version>
+         </clocks_profile>
+         <clock_configurations>
+            <clock_configuration name="BOARD_BootClockRUN">
+               <description></description>
+               <options/>
+               <dependencies>
+                  <dependency resourceType="PinSignal" resourceId="XTALOSC24M.xtali" description="&apos;XTALI&apos; (Pins tool id: XTALOSC24M.xtali, Clocks tool id: XTALOSC24M.XTALI) needs to be routed" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="routed" evaluation="">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="XTALOSC24M.xtali" description="&apos;XTALI&apos; (Pins tool id: XTALOSC24M.xtali, Clocks tool id: XTALOSC24M.XTALI) needs to have &apos;INPUT&apos; direction" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="direction" evaluation="">
+                        <data>INPUT</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="XTALOSC24M.xtalo" description="&apos;XTALO&apos; (Pins tool id: XTALOSC24M.xtalo, Clocks tool id: XTALOSC24M.XTALO) needs to be routed" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="routed" evaluation="">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="PinSignal" resourceId="XTALOSC24M.xtalo" description="&apos;XTALO&apos; (Pins tool id: XTALOSC24M.xtalo, Clocks tool id: XTALOSC24M.XTALO) needs to have &apos;OUTPUT&apos; direction" problem_level="1" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="direction" evaluation="">
+                        <data>OUTPUT</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.common" description="Clocks initialization requires the COMMON Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="SWComponent" resourceId="platform.drivers.iomuxc" description="Clocks initialization requires the IOMUXC Driver in the project." problem_level="2" source="Clocks:BOARD_BootClockRUN">
+                     <feature name="enabled" evaluation="equal" configuration="core0">
+                        <data>true</data>
+                     </feature>
+                  </dependency>
+               </dependencies>
+               <clock_sources/>
+               <clock_outputs>
+                  <clock_output id="AHB_CLK_ROOT.outFreq" value="360 MHz" locked="false" accuracy=""/>
+                  <clock_output id="CAN_CLK_ROOT.outFreq" value="2 MHz" locked="false" accuracy=""/>
+                  <clock_output id="CLK_1M.outFreq" value="1 MHz" locked="false" accuracy=""/>
+                  <clock_output id="CLK_24M.outFreq" value="24 MHz" locked="false" accuracy=""/>
+                  <clock_output id="CSI_CLK_ROOT.outFreq" value="12 MHz" locked="false" accuracy=""/>
+                  <clock_output id="ENET_125M_CLK.outFreq" value="2.4 MHz" locked="false" accuracy=""/>
+                  <clock_output id="ENET_25M_REF_CLK.outFreq" value="1.2 MHz" locked="false" accuracy=""/>
+                  <clock_output id="FLEXIO1_CLK_ROOT.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="FLEXIO2_CLK_ROOT.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="FLEXSPI_CLK_ROOT.outFreq" value="36 MHz" locked="false" accuracy=""/>
+                  <clock_output id="GPT1_ipg_clk_highfreq.outFreq" value="11.25 MHz" locked="false" accuracy=""/>
+                  <clock_output id="GPT2_ipg_clk_highfreq.outFreq" value="11.25 MHz" locked="false" accuracy=""/>
+                  <clock_output id="IPG_CLK_ROOT.outFreq" value="90 MHz" locked="false" accuracy=""/>
+                  <clock_output id="LCDIF_CLK_ROOT.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="LPI2C_CLK_ROOT.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="LPSPI_CLK_ROOT.outFreq" value="6 MHz" locked="false" accuracy=""/>
+                  <clock_output id="LVDS1_CLK.outFreq" value="720 MHz" locked="false" accuracy=""/>
+                  <clock_output id="MQS_MCLK.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="PERCLK_CLK_ROOT.outFreq" value="11.25 MHz" locked="false" accuracy=""/>
+                  <clock_output id="PLL7_MAIN_CLK.outFreq" value="24 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI1_CLK_ROOT.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI1_MCLK1.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI1_MCLK2.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI1_MCLK3.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI2_CLK_ROOT.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI2_MCLK1.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI2_MCLK3.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI3_CLK_ROOT.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI3_MCLK1.outFreq" value="3 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SAI3_MCLK3.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SEMC_CLK_ROOT.outFreq" value="72 MHz" locked="false" accuracy=""/>
+                  <clock_output id="SPDIF0_CLK_ROOT.outFreq" value="1.5 MHz" locked="false" accuracy=""/>
+                  <clock_output id="TRACE_CLK_ROOT.outFreq" value="6 MHz" locked="false" accuracy=""/>
+                  <clock_output id="UART_CLK_ROOT.outFreq" value="4 MHz" locked="false" accuracy=""/>
+                  <clock_output id="USDHC1_CLK_ROOT.outFreq" value="12 MHz" locked="false" accuracy=""/>
+                  <clock_output id="USDHC2_CLK_ROOT.outFreq" value="12 MHz" locked="false" accuracy=""/>
+               </clock_outputs>
+               <clock_settings>
+                  <setting id="CCM.PERCLK_PODF.scale" value="8" locked="true"/>
+                  <setting id="CCM.SEMC_PODF.scale" value="5" locked="false"/>
+                  <setting id="CCM_ANALOG.PLL1_BYPASS.sel" value="CCM_ANALOG.PLL1" locked="false"/>
+                  <setting id="CCM_ANALOG.PLL1_PREDIV.scale" value="1" locked="true"/>
+                  <setting id="CCM_ANALOG.PLL1_VDIV.scale" value="30" locked="true"/>
+               </clock_settings>
+               <called_from_default_init>true</called_from_default_init>
+            </clock_configuration>
+         </clock_configurations>
+      </clocks>
+      <dcdx name="DCDx" version="3.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/dcd.c" update_enabled="true"/>
+            <file path="board/dcd.h" update_enabled="true"/>
+         </generated_project_files>
+         <dcdx_profile>
+            <processor_version>10.0.0</processor_version>
+            <output_format>c_array</output_format>
+         </dcdx_profile>
+         <dcdx_configurations>
+            <dcdx_configuration name="Device_configuration">
+               <description></description>
+               <options/>
+               <command_groups/>
+            </dcdx_configuration>
+         </dcdx_configurations>
+      </dcdx>
+      <periphs name="Peripherals" version="10.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/peripherals.c" update_enabled="true"/>
+            <file path="board/peripherals.h" update_enabled="true"/>
+         </generated_project_files>
+         <peripherals_profile>
+            <processor_version>10.0.0</processor_version>
+         </peripherals_profile>
+         <functional_groups>
+            <functional_group name="BOARD_InitPeripherals" uuid="1ddd25fa-d859-42fc-9a97-1521854f7b20" called_from_default_init="true" id_prefix="" core="core0">
+               <description></description>
+               <options/>
+               <dependencies/>
+               <instances>
+                  <instance name="NVIC" uuid="07c6cd69-399a-4283-af2e-1079687fa9fe" type="nvic" type_id="nvic_57b5eef3774cc60acaede6f5b8bddc67" mode="general" peripheral="NVIC" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="nvic">
+                        <array name="interrupt_table"/>
+                        <array name="interrupts"/>
+                     </config_set>
+                  </instance>
+               </instances>
+            </functional_group>
+         </functional_groups>
+         <components>
+            <component name="system" uuid="52dc9b18-0002-4c01-a7da-81575465f4af" type_id="system_54b53072540eeeb8f8e9343e71f28176">
+               <config_set_global name="global_system_definitions">
+                  <setting name="user_definitions" value=""/>
+                  <setting name="user_includes" value=""/>
+               </config_set_global>
+            </component>
+            <component name="uart_cmsis_common" uuid="2e671f95-3f55-4719-9c47-94cee7f68575" type_id="uart_cmsis_common_9cb8e302497aa696fdbb5a4fd622c2a8">
+               <config_set_global name="global_USART_CMSIS_common" quick_selection="default"/>
+            </component>
+            <component name="generic_can" uuid="13a2f650-dcef-4c0e-9d43-613608112d2b" type_id="generic_can_1bfdd78b1af214566c1f23cf6a582d80">
+               <config_set_global name="global_can"/>
+            </component>
+            <component name="generic_uart" uuid="986e1df4-f4d1-4903-bbae-6a557c699415" type_id="generic_uart_8cae00565451cf2346eb1b8c624e73a6">
+               <config_set_global name="global_uart"/>
+            </component>
+            <component name="generic_enet" uuid="b7a49b77-c26c-4289-a94f-da308e9b0ace" type_id="generic_enet_74db5c914f0ddbe47d86af40cb77a619">
+               <config_set_global name="global_enet"/>
+            </component>
+            <component name="msg" uuid="51d88e53-fc2d-45cb-897a-e5f876085a6d" type_id="msg_6e2baaf3b97dbeef01c0043275f9a0e7">
+               <config_set_global name="global_messages"/>
+            </component>
+         </components>
+      </periphs>
+      <tee name="TEE" version="4.0" enabled="false" update_project_code="true">
+         <generated_project_files/>
+         <tee_profile>
+            <processor_version>N/A</processor_version>
+         </tee_profile>
+      </tee>
+   </tools>
+</configuration>

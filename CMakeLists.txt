@@ -1,24 +1,25 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(imxrt1050_template)
+project(imxrt1050_azrtos_hello)
 
 enable_language(CXX)
 enable_language(ASM)
 
 # Device specific settings, goes to CFLAGS and LDFLAGS
-set(CFLAGS_HARDWARE "-mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
+set(TARGET_CFLAGS_HARDWARE "-mcpu=cortex-m7 -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb")
 
 # Extra CFlags
-set(CFLAGS_EXTRA "-Og")
-set(LDFLAGS_EXTRA "-Wl,--print-memory-usage")
+set(TARGET_CFLAGS_EXTRA   "-Og")
+set(TARGET_CXXFLAGS_EXTRA "")
+set(TARGET_LDFLAGS_EXTRA  "-Wl,--print-memory-usage -Xlinker --defsym=__heap_size__=0x1F000") # ThreadX uses the default heap.
 
 # Different linker scripts
-set(LDSCRIPT_RAM "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_ram.ld")
-set(LDSCRIPT_FLEXSPI "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_flexspi_nor.ld")
-set(LDSCRIPT_SDRAM "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_sdram.ld")
+set(TARGET_LDSCRIPT_RAM     "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_ram.ld")
+set(TARGET_LDSCRIPT_FLEXSPI "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_flexspi_nor.ld")
+set(TARGET_LDSCRIPT_SDRAM   "${CMAKE_SOURCE_DIR}/devices/MIMXRT1052/gcc/MIMXRT1052xxxxx_sdram.ld")
 
 # Copy them from Makefile
-set(C_SOURCES
+set(TARGET_C_SOURCES
     "devices/MIMXRT1052/system_MIMXRT1052.c"
     "devices/MIMXRT1052/drivers/fsl_adc.c"
     "devices/MIMXRT1052/drivers/fsl_adc_etc.c"
@@ -95,56 +96,62 @@ set(C_SOURCES
     "board/peripherals.c"
     "board/pin_mux.c"
     "source/main.c"
+    "source/tx_init_lowlevel.c"
 )
 
 # Copy them from Makefile
-set(ASM_SOURCES
+set(TARGET_ASM_SOURCES
     "devices/MIMXRT1052/gcc/startup_MIMXRT1052.S"
 )
 
 # Copy them from Makefile
-add_definitions(
+set(TARGET_DEFINES
     "-DCPU_MIMXRT1052DVL6B"
     "-D__STARTUP_CLEAR_BSS"
     "-D__STARTUP_INITIALIZE_NONCACHEDATA"
 )
 
 # Copy them from Makefile
-include_directories(
+set(TARGET_INCLUDES
     "board"
     "source"
     "devices/MIMXRT1052"
     "devices/MIMXRT1052/drivers"
     "CMSIS/Core/Include"
+    "components/threadx/common/inc"
 )
 
-# Conditional compiler flags
-set(CMAKE_C_FLAGS_DEBUG "-g -DDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "-DNDEBUG")
-
-set(CMAKE_CXX_FLAGS_DEBUG "-g -DDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG")
-
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-g")
+set(TARGET_LIBS
+    "threadx"
+)
 
 # Final compiler flags
-set(CMAKE_C_FLAGS "${CFLAGS_HARDWARE} ${CFLAGS_EXTRA} -Wall -fdata-sections -ffunction-sections -ffreestanding -fno-builtin")
-set(CMAKE_CXX_FLAGS "${CFLAGS_HARDWARE} ${CFLAGS_EXTRA} -Wall -fdata-sections -ffunction-sections -ffreestanding  -fno-builtin")
-set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
-set(CMAKE_EXE_LINKER_FLAGS "${CFLAGS_HARDWARE} -specs=nano.specs -specs=nosys.specs -Wl,--gc-sections -lc -lm -lnosys ${LDFLAGS_EXTRA}")
+set(CMAKE_C_FLAGS          "${TARGET_CFLAGS_HARDWARE} ${TARGET_CFLAGS_EXTRA} ${TARGET_CFLGAGS_DEBUG} -Wall -fdata-sections -ffunction-sections -ffreestanding -fno-builtin")
+set(CMAKE_CXX_FLAGS        "${CMAKE_C_FLAGS} ${TARGET_CXXFLAGS_EXTRA}")
+set(CMAKE_ASM_FLAGS        "${CMAKE_C_FLAGS} -x assembler-with-cpp")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_C_FLAGS} -specs=nano.specs -specs=nosys.specs -Wl,--gc-sections -lc -lm -lnosys ${TARGET_LDFLAGS_EXTRA}")
+
+# Configure ThreadX
+set(THREADX_ARCH "cortex_m7" CACHE STRING "ThreadX Arch")
+set(THREADX_TOOLCHAIN "gnu" CACHE STRING "ThreadX Toolchain")
+set(TX_USER_FILE "${CMAKE_CURRENT_SOURCE_DIR}/include/tx_user.h")
+add_subdirectory(components/threadx)
 
 # Main targets are added here
 
 # **** All In SRAM ****
 
 # Create ELF
-add_executable("${CMAKE_PROJECT_NAME}_RAM.elf" ${C_SOURCES} ${ASM_SOURCES})
+add_executable("${CMAKE_PROJECT_NAME}_RAM.elf" ${TARGET_C_SOURCES} ${TARGET_ASM_SOURCES})
 
 # Linker script and Map files
 target_link_options("${CMAKE_PROJECT_NAME}_RAM.elf"
-    PRIVATE "-T${LDSCRIPT_RAM}"
+    PRIVATE "-T${TARGET_LDSCRIPT_RAM}"
     PRIVATE "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}_RAM.map,--cref"
 )
+target_compile_definitions("${CMAKE_PROJECT_NAME}_RAM.elf" PRIVATE ${TARGET_DEFINES})
+target_include_directories("${CMAKE_PROJECT_NAME}_RAM.elf" PRIVATE ${TARGET_INCLUDES})
+target_link_libraries("${CMAKE_PROJECT_NAME}_RAM.elf" PRIVATE ${TARGET_LIBS})
 
 add_custom_command(OUTPUT "${CMAKE_PROJECT_NAME}_RAM.hex"
     COMMAND ${CMAKE_OBJCOPY} "-O" "ihex" "${CMAKE_PROJECT_NAME}_RAM.elf" "${CMAKE_PROJECT_NAME}_RAM.hex"
@@ -158,18 +165,20 @@ add_custom_target("${CMAKE_PROJECT_NAME}_RAM_HEX"
 # **** FLEXSPI ****
 
 # Create ELF
-add_executable("${CMAKE_PROJECT_NAME}_FLEXSPI.elf" ${C_SOURCES} ${ASM_SOURCES})
+add_executable("${CMAKE_PROJECT_NAME}_FLEXSPI.elf" ${TARGET_C_SOURCES} ${TARGET_ASM_SOURCES})
 
 # Linker script and Map files
 target_link_options("${CMAKE_PROJECT_NAME}_FLEXSPI.elf"
-    PRIVATE "-T${LDSCRIPT_FLEXSPI}"
+    PRIVATE "-T${TARGET_LDSCRIPT_FLEXSPI}"
     PRIVATE "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}_FLEXSPI.map,--cref"
 )
-
 target_compile_definitions("${CMAKE_PROJECT_NAME}_FLEXSPI.elf"
+    PRIVATE ${TARGET_DEFINES}
     PRIVATE "XIP_EXTERNAL_FLASH=1"
     PRIVATE "XIP_BOOT_HEADER_ENABLE=1"
 )
+target_include_directories("${CMAKE_PROJECT_NAME}_FLEXSPI.elf" PRIVATE ${TARGET_INCLUDES})
+target_link_libraries("${CMAKE_PROJECT_NAME}_FLEXSPI.elf" PRIVATE ${TARGET_LIBS})
 
 add_custom_command(OUTPUT "${CMAKE_PROJECT_NAME}_FLEXSPI.hex"
     COMMAND ${CMAKE_OBJCOPY} "-O" "ihex" "${CMAKE_PROJECT_NAME}_FLEXSPI.elf" "${CMAKE_PROJECT_NAME}_FLEXSPI.hex"
@@ -183,18 +192,20 @@ add_custom_target("${CMAKE_PROJECT_NAME}_FLEXSPI_HEX"
 # **** SDRAM ****
 
 # Create ELF
-add_executable("${CMAKE_PROJECT_NAME}_SDRAM.elf" ${C_SOURCES} ${ASM_SOURCES})
+add_executable("${CMAKE_PROJECT_NAME}_SDRAM.elf" ${TARGET_C_SOURCES} ${TARGET_ASM_SOURCES})
 
 # Linker script and Map files
 target_link_options("${CMAKE_PROJECT_NAME}_SDRAM.elf"
-    PRIVATE "-T${LDSCRIPT_SDRAM}"
+    PRIVATE "-T${TARGET_LDSCRIPT_SDRAM}"
     PRIVATE "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}_SDRAM.map,--cref"
 )
-
 target_compile_definitions("${CMAKE_PROJECT_NAME}_SDRAM.elf"
+    PRIVATE ${TARGET_DEFINES}
     PRIVATE "DATA_SECTION_IS_CACHABLE=1"
     PRIVATE "SKIP_SYSCLK_INIT"
 )
+target_include_directories("${CMAKE_PROJECT_NAME}_SDRAM.elf" PRIVATE ${TARGET_INCLUDES})
+target_link_libraries("${CMAKE_PROJECT_NAME}_SDRAM.elf" PRIVATE ${TARGET_LIBS})
 
 add_custom_command(OUTPUT "${CMAKE_PROJECT_NAME}_SDRAM.hex"
     COMMAND ${CMAKE_OBJCOPY} "-O" "ihex" "${CMAKE_PROJECT_NAME}_SDRAM.elf" "${CMAKE_PROJECT_NAME}_SDRAM.hex"
